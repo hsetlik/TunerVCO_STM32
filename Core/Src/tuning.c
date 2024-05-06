@@ -7,7 +7,7 @@
 
 #include "tuning.h"
 #include <math.h>
-
+#include <ssd1306.h>
 
 void triggerTuningUpdate(uint32_t* buffer, uint16_t* head) {
 	uint32_t val = HAL_GetTick();
@@ -97,5 +97,55 @@ int16_t getTuningErrorCents(float hz, uint8_t midiTarget){
 
 bool lowIsCloser(float low, float hi, float target) {
 	return (target - low) >= (hi - target);
+}
+
+
+void displayTuning(float hz){
+	static char* noteNames[] = {
+			"A",
+			"Bb",
+			"B",
+			"C",
+			"Db",
+			"D",
+			"Eb",
+			"E",
+			"F",
+			"Gb",
+			"G"
+	};
+
+	uint8_t x = (128 - 16) / 2;
+	uint8_t y = (64 - 26) / 2;
+
+	uint8_t target = nearestMidiNote(hz);
+
+	// draw the note name
+	ssd1306_SetCursor(x, y);
+	ssd1306_WriteString(noteNames[target % 12], Font_16x24, White);
+
+	//display the error
+	int tuningError = getTuningErrorCents(hz, target);
+	uint8_t x1, y1, x2, y2;
+	if(tuningError < (0 - IN_TUNE_THRESHOLD)) { // flat
+		x2 = SSD1306_WIDTH / 2;
+		float fDist = (float)(tuningError * -1) / 100.0f;
+		x1 = x2 - (uint8_t)(fDist * (float)x2);
+		y1 = 0;
+		y2 = SSD1306_HEIGHT;
+
+		ssd1306_InvertRectangle(x1, y1, x2, y2);
+	}
+	else if (tuningError > IN_TUNE_THRESHOLD){ // sharp
+		x1 = SSD1306_WIDTH / 2;
+		float fDist = (float)(tuningError) / 100.0f;
+		x2 = x1 + (uint8_t)(fDist * (float)x1);
+		y1 = 0;
+		y2 = SSD1306_HEIGHT;
+
+		ssd1306_InvertRectangle(x1, y1, x2, y2);
+
+	}
+
 }
 
