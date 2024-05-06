@@ -80,6 +80,10 @@ uint8_t nearestMidiNote(float hz){
 
 
 int16_t getTuningErrorCents(float hz, uint8_t midiTarget){
+	if(!midiNotesInitialized){
+		initMidiNotePitches();
+		midiNotesInitialized = true;
+	}
 	if(hz <= midiNotePitches[midiTarget]){ // we're flat
 		float diff = midiNotePitches[midiTarget] - hz;
 		float halfstep = midiNotePitches[midiTarget] - midiNotePitches[midiTarget - 1];
