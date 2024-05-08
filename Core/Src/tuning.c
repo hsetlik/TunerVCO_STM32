@@ -9,14 +9,13 @@
 #include <math.h>
 #include <ssd1306.h>
 
-void triggerTuningUpdate(uint32_t* buffer, uint16_t* head) {
+void triggerTuningUpdate(uint32_t* buffer, uint8_t* head) {
 	uint32_t val = HAL_GetTick();
 	buffer[*head] = val;
 	*head = (*head + 1) % TUNING_BUF_SIZE;
 }
 
-
-uint32_t getTuningBufferValue(uint32_t* buffer, uint16_t* head, uint16_t idx) {
+uint32_t getTuningBufferValue(uint32_t* buffer, uint8_t* head, uint8_t idx) {
 
 	idx = (*head + idx) % TUNING_BUF_SIZE;
 	return buffer[idx];

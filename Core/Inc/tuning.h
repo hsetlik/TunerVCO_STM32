@@ -22,11 +22,13 @@ extern "C" {
 #define IN_TUNE_THRESHOLD 4
 
 
+
 // tuning buffer stuff
-void triggerTuningUpdate(uint32_t* buffer, uint16_t* head);
-uint32_t getTuningBufferValue(uint32_t* buffer, uint16_t* head, uint16_t idx);
+void triggerTuningUpdate(uint32_t* buffer, uint8_t* head);
+uint32_t getTuningBufferValue(uint32_t* buffer, uint8_t* head, uint8_t idx);
 float getCurrentHz(uint32_t* buffer, uint8_t* head);
 float getPulseWidth(uint32_t* risingBuf, uint8_t* rHead, uint32_t* fallingBuf, uint8_t* fHead, uint8_t samplesToCheck);
+
 //-----------------------------------------
 
 // tuning description/display stuff
