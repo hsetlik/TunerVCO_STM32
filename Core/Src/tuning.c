@@ -23,14 +23,49 @@ uint32_t getTuningBufferValue(uint32_t* buffer, uint16_t* head, uint16_t idx) {
 }
 
 
-float getCurrentHz(uint32_t* buffer) {
+float getCurrentHz(uint32_t* buffer, uint8_t* head) {
 	float sum = 0.0f;
 	for(uint8_t idx = 1; idx < TUNING_BUF_SIZE; idx++){
-		uint32_t diff = buffer[idx] - buffer[idx - 1];
-		sum += (float)diff;
+		uint32_t hi = getTuningBufferValue(buffer, head, idx);
+		uint32_t low = getTuningBufferValue(buffer, head, idx - 1);
+		sum += (float)hi - low;
 	}
 	float avgIntervalMs = sum / (float)TUNING_BUF_SIZE;
 	return 1000.0f / avgIntervalMs;
+}
+
+
+float getPulseWidth(uint32_t* risingBuf, uint8_t* rHead, uint32_t* fallingBuf, uint8_t* fHead, uint8_t samplesToCheck){
+	// we don't know whether the first edge we detect will be rising or falling,
+	// so we use these pointers to access them in terms of first/second
+	uint32_t* firstBuf;
+	uint8_t* firstHead;
+	uint32_t* secondBuf;
+	uint8_t* secondHead;
+
+	if(getTuningBufferValue(risingBuf, rHead, 0) < getTuningBufferValue(fallingBuf, fHead, 0)){
+		firstBuf = risingBuf;
+		firstHead = rHead;
+		secondBuf = fallingBuf;
+		secondHead = fHead;
+	} else {
+		firstBuf = fallingBuf;
+		firstHead = fHead;
+		secondBuf = risingBuf;
+		secondHead = rHead;
+	}
+
+	float avg = 0.0f;
+	for(uint8_t n = 1; n < samplesToCheck; n++){
+		uint32_t pulseMs = getTuningBufferValue(secondBuf, secondHead, n - 1) - getTuningBufferValue(firstBuf, firstHead, n - 1);
+		uint32_t periodMs = getTuningBufferValue(firstBuf, firstHead, n) - getTuningBufferValue(firstBuf, firstHead, n - 1);
+		avg += (float)periodMs / (float)pulseMs;
+	}
+	avg /= (float)samplesToCheck;
+	if(firstBuf == risingBuf)
+		return avg;
+	return 1.0f - avg;
+
 }
 
 // initialize an array of pitches for each MIDI note

@@ -44,6 +44,13 @@ I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
 
+// our two tuning buffers
+
+uint32_t risingEdgeBuf[TUNING_BUF_SIZE];
+uint8_t risingBufHead = 0;
+
+uint32_t fallingEdgeBuf[TUNING_BUF_SIZE];
+uint8_t fallingBufHead = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -51,6 +58,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
+
 
 /* USER CODE END PFP */
 
@@ -219,7 +227,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : VCO_IN_Pin */
   GPIO_InitStruct.Pin = VCO_IN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(VCO_IN_GPIO_Port, &GPIO_InitStruct);
 
@@ -228,6 +236,25 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+// ISRs
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+  triggerTuningUpdate(risingEdgeBuf, &risingBufHead);
+
+
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+  triggerTuningUpdate(fallingEdgeBuf, &fallingBufHead);
+
+}
+
 
 /* USER CODE END 4 */
 
