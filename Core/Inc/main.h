@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 
 #include "tuning.h"
+#include "neopixel.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

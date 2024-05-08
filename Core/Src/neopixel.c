@@ -49,7 +49,7 @@ void setColor(pixel_data_t* pixels, uint16_t idx, uint32_t color){
 
 }
 
-uint32_t lerpColors(uint32_t a, uint32t b, float t){
+uint32_t lerpColors(uint32_t a, uint32_t b, float t){
 
 	uint8_t rA = (uint8_t)a;
 	uint8_t gA = (uint8_t)(a >> 8);

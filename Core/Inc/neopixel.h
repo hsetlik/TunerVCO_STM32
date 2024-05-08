@@ -8,6 +8,8 @@
 #ifndef INC_NEOPIXEL_H_
 #define INC_NEOPIXEL_H_
 
+
+#include "stm32g0xx_hal.h"
 /* The one-wire interface used by neopixels relies on a PWM signal to encode logical highs and lows
  * At a constant 800kHz frequency, bits are determined to be high or low based on the duty cycle of the
  * high pulse
@@ -32,7 +34,7 @@ typedef struct {
 // color packing and blending stuff
 uint32_t getRGBColor(uint8_t r, uint8_t g, uint8_t b);
 void setColor(pixel_data_t* pixels, uint16_t idx, uint32_t color);
-uint32_t lerpColors(uint32_t a, uint32t b, float t);
+uint32_t lerpColors(uint32_t a, uint32_t b, float t);
 
 // math helper
 uint8_t lerp8Bit(uint8_t a, uint8_t b, float t);

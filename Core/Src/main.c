@@ -50,10 +50,20 @@ DMA_HandleTypeDef hdma_tim16_ch1;
 // our two tuning buffers
 
 uint32_t risingEdgeBuf[TUNING_BUF_SIZE];
-uint8_t risingBufHead = 0;
+head_t risingBufHead = 0;
 
 uint32_t fallingEdgeBuf[TUNING_BUF_SIZE];
-uint8_t fallingBufHead = 0;
+head_t fallingBufHead = 0;
+
+// neopixel stuff
+pixel_data_t pixel;
+float currentPulseWidth = 0.5f;
+uint32_t wideColor = getRGBColor(255, 0, 0);
+uint32_t narrowColor = getRGBColor(255, 0, 0);
+
+// timing stuff
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,8 +72,11 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM16_Init(void);
-/* USER CODE BEGIN PFP */
 
+
+/* USER CODE BEGIN PFP */
+void updatePixel();
+void updateOLED();
 
 /* USER CODE END PFP */
 
@@ -105,6 +118,7 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+  // vars for the neopixels
 
   /* USER CODE END 2 */
 
@@ -334,6 +348,22 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef* htim){
 	HAL_TIM_PWM_Stop_DMA(&htim16, TIM_CHANNEL_1);
 	htim16.Instance->CCR1 = 0;
+}
+
+//------------------------------------------------------------
+
+void updatePixel(){
+	// step 1: calculate the current pulse width
+	currentPulseWidth = getPulseWidth(risingEdgeBuf, &risingBufHead, fallingEdgeBuf, &fallingBufHead, 150);
+	uint32_t rgb = lerpColors(narrowColor, wideColor, currentPulseWidth);
+	// step 2. set the data
+	setColor(&pixel, 0, rgb);
+	//step 3. send to DMA
+	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1, (uint32_t*)&pixel, 24);
+}
+
+void updateOLED(){
+
 }
 
 

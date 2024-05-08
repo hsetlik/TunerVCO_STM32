@@ -9,20 +9,20 @@
 #include <math.h>
 #include <ssd1306.h>
 
-void triggerTuningUpdate(uint32_t* buffer, uint8_t* head) {
+void triggerTuningUpdate(uint32_t* buffer, head_t* head) {
 	uint32_t val = HAL_GetTick();
 	buffer[*head] = val;
 	*head = (*head + 1) % TUNING_BUF_SIZE;
 }
 
-uint32_t getTuningBufferValue(uint32_t* buffer, uint8_t* head, uint8_t idx) {
+uint32_t getTuningBufferValue(uint32_t* buffer, head_t* head, uint8_t idx) {
 
 	idx = (*head + idx) % TUNING_BUF_SIZE;
 	return buffer[idx];
 }
 
 
-float getCurrentHz(uint32_t* buffer, uint8_t* head) {
+float getCurrentHz(uint32_t* buffer, head_t* head) {
 	float sum = 0.0f;
 	for(uint8_t idx = 1; idx < TUNING_BUF_SIZE; idx++){
 		uint32_t hi = getTuningBufferValue(buffer, head, idx);
@@ -34,13 +34,13 @@ float getCurrentHz(uint32_t* buffer, uint8_t* head) {
 }
 
 
-float getPulseWidth(uint32_t* risingBuf, uint8_t* rHead, uint32_t* fallingBuf, uint8_t* fHead, uint8_t samplesToCheck){
+float getPulseWidth(uint32_t* risingBuf, head_t* rHead, uint32_t* fallingBuf, head_t* fHead, uint8_t samplesToCheck){
 	// we don't know whether the first edge we detect will be rising or falling,
 	// so we use these pointers to access them in terms of first/second
 	uint32_t* firstBuf;
-	uint8_t* firstHead;
+	head_t* firstHead;
 	uint32_t* secondBuf;
-	uint8_t* secondHead;
+	head_t* secondHead;
 
 	if(getTuningBufferValue(risingBuf, rHead, 0) < getTuningBufferValue(fallingBuf, fHead, 0)){
 		firstBuf = risingBuf;

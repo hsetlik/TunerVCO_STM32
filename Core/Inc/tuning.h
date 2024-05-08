@@ -16,6 +16,9 @@ extern "C" {
 #include "ssd1306_fonts.h"
 #include <stdbool.h>
 
+// alias for what type we should use for the ring buffer heads
+typedef uint16_t head_t;
+
 // some constants
 #define TUNING_BUF_SIZE 200
 #define SEMITONE_RATIO 1.05946309436f
@@ -24,10 +27,10 @@ extern "C" {
 
 
 // tuning buffer stuff
-void triggerTuningUpdate(uint32_t* buffer, uint8_t* head);
-uint32_t getTuningBufferValue(uint32_t* buffer, uint8_t* head, uint8_t idx);
-float getCurrentHz(uint32_t* buffer, uint8_t* head);
-float getPulseWidth(uint32_t* risingBuf, uint8_t* rHead, uint32_t* fallingBuf, uint8_t* fHead, uint8_t samplesToCheck);
+void triggerTuningUpdate(uint32_t* buffer, head_t* head);
+uint32_t getTuningBufferValue(uint32_t* buffer, head_t* head, uint8_t idx);
+float getCurrentHz(uint32_t* buffer, head_t* head);
+float getPulseWidth(uint32_t* risingBuf, head_t* rHead, uint32_t* fallingBuf, head_t* fHead, uint8_t samplesToCheck);
 
 //-----------------------------------------
 
