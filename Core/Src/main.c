@@ -55,14 +55,16 @@ head_t risingBufHead = 0;
 uint32_t fallingEdgeBuf[TUNING_BUF_SIZE];
 head_t fallingBufHead = 0;
 
+float currentHz = 0.0f;
+
 // neopixel stuff
 pixel_data_t pixel;
 float currentPulseWidth = 0.5f;
-uint32_t wideColor = getRGBColor(255, 0, 0);
-uint32_t narrowColor = getRGBColor(255, 0, 0);
-
+uint32_t wideColor;
+uint32_t narrowColor;
 // timing stuff
-
+uint32_t lastDisplayUpdate = 0;
+uint32_t lastPixelUpdate = 0;
 
 /* USER CODE END PV */
 
@@ -119,14 +121,27 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   // vars for the neopixels
+  wideColor = getRGBColor(255, 0, 0);
+  narrowColor = getRGBColor(0, 0, 255);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint32_t now = 0;
   while (1)
   {
     /* USER CODE END WHILE */
+	now = HAL_GetTick();
+	if(now - lastDisplayUpdate >= DISPLAY_INTERVAL_MS){
+		updateOLED();
+		lastDisplayUpdate = now;
+	}
+
+	if(now - lastPixelUpdate >= PIXEL_INTERVAL_MS){
+		updatePixel();
+		lastPixelUpdate = now;
+	}
 
     /* USER CODE BEGIN 3 */
   }
@@ -353,16 +368,21 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef* htim){
 //------------------------------------------------------------
 
 void updatePixel(){
+
 	// step 1: calculate the current pulse width
 	currentPulseWidth = getPulseWidth(risingEdgeBuf, &risingBufHead, fallingEdgeBuf, &fallingBufHead, 150);
 	uint32_t rgb = lerpColors(narrowColor, wideColor, currentPulseWidth);
 	// step 2. set the data
 	setColor(&pixel, 0, rgb);
 	//step 3. send to DMA
-	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1, (uint32_t*)&pixel, 24);
+	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)&pixel, 24);
 }
 
 void updateOLED(){
+	//step 1: grip the hz
+	currentHz = getCurrentHz(risingEdgeBuf, &risingBufHead);
+	//step 2: send to display
+	displayTuning(currentHz);
 
 }
 

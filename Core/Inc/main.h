@@ -68,6 +68,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
+#define DISPLAY_INTERVAL_MS 42
+#define PIXEL_INTERVAL_MS 84
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
